@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ModuleRegistry } from 'ag-grid-community';
+import { ModuleRegistry, type GridReadyEvent } from 'ag-grid-community';
 import { AllEnterpriseModule } from 'ag-grid-enterprise';
 import { AgGridVue } from 'ag-grid-vue3';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
@@ -44,6 +44,22 @@ function refreshRows(): void {
   });
 }
 
+function onGridReady(event: GridReadyEvent): void {
+  // Колонка «Категория» (авто-колонка дерева ag-Grid-AutoColumn) по умолчанию
+  // встаёт первой. Перемещаем её сразу после колонки «№ п/п».
+  const colId = 'ag-Grid-AutoColumn';
+  const autoCol = event.api.getColumn(colId);
+  if (!autoCol) {
+    return;
+  }
+  const index = event.api
+    .getAllGridColumns()
+    .findIndex((col) => col.getColId() === colId);
+  if (index >= 0) {
+    event.api.moveColumnByIndex(index, 1);
+  }
+}
+
 async function loadData(): Promise<void> {
   abortController = new AbortController();
   try {
@@ -84,6 +100,7 @@ onBeforeUnmount(() => abortController?.abort());
         :auto-group-column-def="treeOptions.autoGroupColumnDef"
         :column-defs="treeOptions.columnDefs"
         :row-data="rows"
+        @grid-ready="onGridReady"
       />
     </div>
   </div>
