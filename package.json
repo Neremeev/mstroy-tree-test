@@ -1,0 +1,30 @@
+{
+  "name": "mstroy-tree-test",
+  "version": "1.0.0",
+  "description": "Тестовое задание MStroy Frontend (v3.2): класс TreeStore + Vue 3 таблица на AgGrid Enterprise",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "ag-grid-community": "^33.0.0",
+    "ag-grid-enterprise": "^33.0.0",
+    "ag-grid-vue3": "^33.0.0",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "@vue/test-utils": "^2.4.6",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "vitest": "^2.1.8",
+    "vue-tsc": "^2.2.0"
+  }
+}
