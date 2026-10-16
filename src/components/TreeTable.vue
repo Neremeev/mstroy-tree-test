@@ -1,57 +1,22 @@
 <script setup lang="ts">
-import { ModuleRegistry, type ValueGetterParams } from 'ag-grid-community';
+import { ModuleRegistry } from 'ag-grid-community';
 import { AllEnterpriseModule } from 'ag-grid-enterprise';
 import { AgGridVue } from 'ag-grid-vue3';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { TreeStore, type TreeItem } from '../store/TreeStore';
+import { columnDefs, gridOptions, type Row, type TreeTableProps } from './treeTableConfig';
+import './treeTable.css';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 
 ModuleRegistry.registerModules([AllEnterpriseModule]);
 
-interface Row extends TreeItem {
-  path: string[];
-  category: 'Группа' | 'Элемент';
-}
-
-const props = defineProps<{
-  dataUrl: string;
-  delayMs?: number;
-}>();
+const props = defineProps<TreeTableProps>();
 
 const store = new TreeStore<TreeItem>();
 const loading = ref(true);
 const rows = ref<Row[]>([]);
 let abortController: AbortController | null = null;
-
-const gridOptions = {
-  treeData: true,
-  getDataPath: (data: Row) => data.path,
-  groupDefaultExpanded: -1,
-  animateRows: true,
-  rowData: rows.value,
-  autoGroupColumnDef: {
-    headerName: 'Категория',
-    valueGetter: (p: ValueGetterParams) => p.data?.category,
-    width: 220,
-  },
-};
-
-const columnDefs = [
-  {
-    headerName: '№ п/п',
-    valueGetter: (p: ValueGetterParams) => (p.node?.rowIndex ?? 0) + 1,
-    width: 90,
-    pinned: false,
-    sortable: false,
-    suppressSizeToFit: true,
-  },
-  {
-    headerName: 'Наименование',
-    field: 'label',
-    flex: 1,
-  },
-];
 
 const treeOptions = computed(() => ({
   ...gridOptions,
@@ -123,35 +88,3 @@ onBeforeUnmount(() => abortController?.abort());
     </div>
   </div>
 </template>
-
-<style scoped>
-.tree-table {
-  min-height: 500px;
-}
-.tree-table__loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  height: 500px;
-  color: #555;
-  font-size: 16px;
-}
-.spinner {
-  width: 24px;
-  height: 24px;
-  border: 3px solid #d0d0d0;
-  border-top-color: #06c;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.tree-table__grid {
-  width: 100%;
-  height: 500px;
-}
-</style>
