@@ -119,7 +119,6 @@ onBeforeUnmount(() => abortController?.abort());
         :auto-group-column-def="treeOptions.autoGroupColumnDef"
         :column-defs="treeOptions.columnDefs"
         :row-data="rows"
-        @grid-ready="onGridReady"
       />
     </div>
   </div>
