@@ -56,7 +56,9 @@ export class TreeStore<T extends TreeItem = TreeItem> {
     if (!ids) {
       return [];
     }
-    return ids.map((childId) => this.byId.get(keyOf(childId))!).filter(Boolean);
+    return ids
+      .map((childId) => this.byId.get(keyOf(childId)))
+      .filter((child): child is T => child != null);
   }
 
   /**
@@ -111,16 +113,7 @@ export class TreeStore<T extends TreeItem = TreeItem> {
 
     for (const item of items) {
       byId.set(keyOf(item.id), item);
-
-      if (item.parent !== null) {
-        const parentKey = keyOf(item.parent);
-        const list = childrenByParent.get(parentKey);
-        if (list) {
-          list.push(item.id);
-        } else {
-          childrenByParent.set(parentKey, [item.id]);
-        }
-      }
+      this.linkToParent(childrenByParent, item);
     }
 
     this.byId = byId;
@@ -134,16 +127,7 @@ export class TreeStore<T extends TreeItem = TreeItem> {
   addItem(item: T): void {
     const idKey = keyOf(item.id);
     this.byId.set(idKey, item);
-
-    if (item.parent !== null) {
-      const parentKey = keyOf(item.parent);
-      const list = this.childrenByParent.get(parentKey);
-      if (list) {
-        list.push(item.id);
-      } else {
-        this.childrenByParent.set(parentKey, [item.id]);
-      }
-    }
+    this.linkToParent(this.childrenByParent, item);
   }
 
   /**
@@ -208,12 +192,27 @@ export class TreeStore<T extends TreeItem = TreeItem> {
     }
 
     if (nextParentKey !== null) {
-      const nextList = this.childrenByParent.get(nextParentKey);
-      if (nextList) {
-        nextList.push(item.id);
-      } else {
-        this.childrenByParent.set(nextParentKey, [item.id]);
-      }
+      this.linkToParent(this.childrenByParent, item);
+    }
+  }
+
+  /**
+   * Привязывает элемент к его родителю: добавляет id элемента в список
+   * прямых дочерних элементов переданного индекса `childrenByParent`.
+   */
+  private linkToParent(
+    childrenByParent: Map<string, TreeId[]>,
+    item: T,
+  ): void {
+    if (item.parent === null) {
+      return;
+    }
+    const parentKey = keyOf(item.parent);
+    const list = childrenByParent.get(parentKey);
+    if (list) {
+      list.push(item.id);
+    } else {
+      childrenByParent.set(parentKey, [item.id]);
     }
   }
 }

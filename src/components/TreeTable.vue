@@ -2,7 +2,7 @@
 import { ModuleRegistry, type GridReadyEvent } from 'ag-grid-community';
 import { AllEnterpriseModule } from 'ag-grid-enterprise';
 import { AgGridVue } from 'ag-grid-vue3';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { TreeStore, type TreeItem } from '../store/TreeStore';
 import { columnDefs, gridOptions, type Row, type TreeTableProps } from './treeTableConfig';
 import './treeTable.css';
@@ -18,19 +18,16 @@ const loading = ref(true);
 const rows = ref<Row[]>([]);
 let abortController: AbortController | null = null;
 
-const treeOptions = computed(() => ({
+const treeOptions = {
   ...gridOptions,
   columnDefs,
-}));
+};
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function buildPath(item: TreeItem): string[] {
   const parents = store.getAllParents(item.id);
-  return parents
-    .slice()
-    .reverse()
-    .map((p) => String(p.label ?? p.id));
+  return [...parents].reverse().map((p) => String(p.label ?? p.id));
 }
 
 function refreshRows(): void {
@@ -45,13 +42,7 @@ function refreshRows(): void {
 }
 
 function onGridReady(event: GridReadyEvent): void {
-  // Колонка «Категория» (авто-колонка дерева ag-Grid-AutoColumn) по умолчанию
-  // встаёт первой. Перемещаем её сразу после колонки «№ п/п».
   const colId = 'ag-Grid-AutoColumn';
-  const autoCol = event.api.getColumn(colId);
-  if (!autoCol) {
-    return;
-  }
   const index = event.api
     .getAllGridColumns()
     .findIndex((col) => col.getColId() === colId);
